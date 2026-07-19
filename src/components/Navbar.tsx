@@ -52,7 +52,7 @@ export default function Navbar() {
             <ThemeToggle />
 
             {/* Profile Section */}
-            <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50">
               <div className="flex flex-col leading-tight text-right">
                 <span className="text-gray-900 dark:text-white text-sm font-semibold">
                   {profile.name}
@@ -63,7 +63,7 @@ export default function Navbar() {
               </div>
               <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-indigo-500/30">
                 <Image
-                  src="/image/profile.jpg"
+                  src="/image/HabiburProfile.png"
                   alt={profile.name}
                   fill
                   className="object-cover"

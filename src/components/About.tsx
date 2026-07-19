@@ -91,23 +91,25 @@ export default function About() {
         </div>
 
         {/* RIGHT SIDE (PHOTO CARD) */}
-        <div className="flex justify-center md:justify-end">
+        {/* <div className="flex justify-center md:justify-end">
           <div className="relative">
-            {/* Glow effect */}
+      
             <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-3xl blur-2xl opacity-30" />
 
-            {/* Image box */}
+         
             <div className="relative w-80 h-80 md:w-96 md:h-96 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/30 dark:border-gray-700/50 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
-              <Image
-                src="/image/profile.jpg"
-                alt="Profile Picture"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+            <Image
+              src="/image/profile.jpg"
+              alt="Profile Picture"
+              fill
+              className="object-cover"
+              sizes="(max-width: 880px) 100vw, (max-width: 1400px) 50vw, 33vw"
+              preload={true}           
+              fetchPriority="high"     
+            />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

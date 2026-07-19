@@ -102,26 +102,28 @@ export default function Hero() {
           transition={{ delay: 0.3 }}
           className="flex-1 flex justify-center lg:justify-end"
         >
-          <div className="relative">
+          <div className="relative">  
             
             {/* Glow background shape */}
             <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/30 to-blue-500/30 blur-3xl rounded-full"></div>
 
-            {/* Glass card */}
-            <div className="relative w-[280px] h-[340px] md:w-[380px] md:h-[460px] rounded-3xl overflow-hidden border-2 border-white/30 dark:border-gray-700/50 bg-white/10 dark:bg-gray-800/30 backdrop-blur-sm shadow-2xl">
-              <Image
-                src="/image/profile.jpg"
-                alt={profile.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </div>
+              {/* Glass card */}
+              <div className="relative w-[280px] h-[360px] md:w-[380px] md:h-[480px] rounded-3xl overflow-hidden border-2 border-white/30 dark:border-gray-700/50 bg-white/10 dark:bg-gray-800/30 backdrop-blur-sm shadow-2xl">
+                <Image
+                    src="/image/HabiburAbout.png"
+                    alt="Profile Picture"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 880px) 100vw, (max-width: 1400px) 50vw, 33vw"
+                    preload={true}           
+                    fetchPriority="high"     
+                  />
+              </div>
 
-            {/* Floating badge */}
-            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 backdrop-blur-md px-5 py-2.5 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 shadow-lg whitespace-nowrap">
-              .NET • React • Next.js
-            </div>
+              {/* Floating badge */}
+              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 backdrop-blur-md px-5 py-2.5 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 shadow-lg whitespace-nowrap">
+                .NET • React • Next.js
+              </div>
           </div>
         </motion.div>
 
