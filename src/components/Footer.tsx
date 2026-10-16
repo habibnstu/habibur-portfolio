@@ -1,41 +1,36 @@
 "use client";
 
-import { profile } from "@/data/profile";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { Mail } from "lucide-react";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { profile } from "@/data/profile";
 
 export default function Footer() {
+  const links = [
+    { href: profile.github, label: "GitHub", icon: FaGithub, external: true, cls: "hover:bg-grape-soft hover:text-grape" },
+    { href: profile.linkedin, label: "LinkedIn", icon: FaLinkedin, external: true, cls: "hover:bg-sky-soft hover:text-sky" },
+    { href: `mailto:${profile.email}`, label: "Email", icon: Mail, external: false, cls: "hover:bg-coral-soft hover:text-coral" },
+  ];
+
   return (
-    <footer className="border-t border-gray-200 dark:border-gray-800 mt-20 bg-white dark:bg-gray-950">
-      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-4">
-        
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          © {new Date().getFullYear()} {profile.name}. All rights reserved.
+    <footer className="relative mt-10 border-t border-line">
+      <div aria-hidden className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-grape/60 to-transparent" />
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 pb-24 sm:flex-row sm:px-8 sm:pb-8">
+        <p className="text-sm text-muted">
+          © {new Date().getFullYear()} {profile.name}
         </p>
-
-        <div className="flex gap-6">
-          <a
-            href={profile.github}
-            target="_blank"
-            className="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300"
-          >
-            <FaGithub size={18} />
-          </a>
-
-          <a
-            href={profile.linkedin}
-            target="_blank"
-            className="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300"
-          >
-            <FaLinkedin size={18} />
-          </a>
-
-          <a
-            href={`mailto:${profile.email}`}
-            className="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300"
-          >
-            <Mail size={18} />
-          </a>
+        <div className="flex gap-2">
+          {links.map(({ href, label, icon: Icon, external, cls }) => (
+            <a
+              key={label}
+              href={href}
+              aria-label={label}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
+              className={`grid h-9 w-9 place-items-center rounded-lg text-muted transition-all hover:-translate-y-0.5 ${cls}`}
+            >
+              <Icon size={17} />
+            </a>
+          ))}
         </div>
       </div>
     </footer>

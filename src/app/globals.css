@@ -1,21 +1,165 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (toggled by ThemeToggle) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Design tokens ---------- */
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f0f2f7;
+  --ink: #1b2233;
+  --muted: #5d6679;
+  --line: #e3e6ef;
+
+  /* Primary */
+  --accent: #4a63e7;
+  --accent-hover: #3b52d1;
+  --accent-soft: #eaedfd;
+  --on-accent: #ffffff;
+
+  /* Colour family — soft, low-glare tones */
+  --sky: #3b7bd9;     --sky-soft: #e6effc;
+  --mint: #0e9384;    --mint-soft: #ddf4f0;
+  --grape: #7a5ad8;   --grape-soft: #efeafc;
+  --sun: #c27c0e;     --sun-soft: #fcf1da;
+  --coral: #d2506b;   --coral-soft: #fbe7eb;
+
+  --cta-from: #4a63e7;
+  --cta-via: #7a5ad8;
+  --cta-to: #0e9384;
+  --cta-ink: #ffffff;
+  color-scheme: light;
 }
 
 .dark {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --bg: #11151f;
+  --surface: #181e2b;
+  --surface-2: #1f2635;
+  --ink: #e3e7ef;
+  --muted: #9aa3b5;
+  --line: #262e3f;
+
+  --accent: #8ea0ff;
+  --accent-hover: #a7b5ff;
+  --accent-soft: #1e2545;
+  --on-accent: #11151f;
+
+  --sky: #82aef5;     --sky-soft: #1a2740;
+  --mint: #5fcfbf;    --mint-soft: #14302c;
+  --grape: #b29bff;   --grape-soft: #251f3e;
+  --sun: #efb54a;     --sun-soft: #322811;
+  --coral: #f08ba0;   --coral-soft: #371d26;
+
+  --cta-from: #2a3570;
+  --cta-via: #3b2c6b;
+  --cta-to: #14423d;
+  --cta-ink: #eef1fb;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-grape: var(--grape);
+  --color-grape-soft: var(--grape-soft);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-cta-ink: var(--cta-ink);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-code: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Typing caret used in the hero code card */
+@keyframes caret-blink { 50% { opacity: 0; } }
+.caret { animation: caret-blink 1s steps(1) infinite; }
+
+/* Availability pulse */
+@keyframes soft-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(34 160 107 / 0.45); }
+  70% { box-shadow: 0 0 0 8px rgb(34 160 107 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(34 160 107 / 0); }
+}
+.pulse-dot { animation: soft-pulse 2.2s ease-out infinite; }
+
+/* ---------- Colour helpers ---------- */
+.grad-text {
+  background: linear-gradient(100deg, var(--sky) 0%, var(--grape) 45%, var(--coral) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.grad-bg {
+  background: linear-gradient(110deg, #4a63e7 0%, #7a5ad8 100%);
+}
+.dark .grad-bg {
+  background: linear-gradient(110deg, #4d5fd0 0%, #7559cc 100%);
+}
+.cta-bg {
+  background: linear-gradient(120deg, var(--cta-from) 0%, var(--cta-via) 50%, var(--cta-to) 100%);
+}
+
+/* Slow drifting colour blobs behind the hero */
+@keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,30px) scale(1.08); } }
+@keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-35px,25px) scale(1.12); } }
+@keyframes drift-c { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(25px,-30px) scale(0.95); } }
+.blob { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: 0.35; pointer-events: none; }
+.dark .blob { opacity: 0.18; }
+.blob-a { animation: drift-a 16s ease-in-out infinite; }
+.blob-b { animation: drift-b 19s ease-in-out infinite; }
+.blob-c { animation: drift-c 22s ease-in-out infinite; }
+
+/* Gentle floating badges */
+@keyframes float-y { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.float-1 { animation: float-y 5s ease-in-out infinite; }
+.float-2 { animation: float-y 6s ease-in-out 0.8s infinite; }
+.float-3 { animation: float-y 5.5s ease-in-out 1.6s infinite; }
+
+/* Card hover lift with a tinted shadow */
+.lift { transition: transform 0.3s cubic-bezier(.22,1,.36,1), box-shadow 0.3s ease, border-color 0.3s ease; }
+.lift:hover { transform: translateY(-4px); box-shadow: 0 16px 34px -18px var(--tone, rgb(30 41 59 / 0.35)); }

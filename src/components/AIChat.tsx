@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, X, Send } from "lucide-react";
 
 type Message = {
@@ -252,10 +253,18 @@ export default function AIChat() {
       `**Please ask a specific question from above!**`;
   };
 
-  const send = async () => {
-    if (!input.trim()) return;
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-    const userMsg: Message = { role: "user", text: input };
+  // Keep the newest message in view
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  const send = async (preset?: string) => {
+    const text = (preset ?? input).trim();
+    if (!text) return;
+
+    const userMsg: Message = { role: "user", text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     
@@ -265,7 +274,7 @@ export default function AIChat() {
     // Simulate typing delay for realistic feel
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    const botText = getProfessionalResponse(input);
+    const botText = getProfessionalResponse(text);
     const botMsg: Message = { role: "bot", text: botText };
     
     setMessages((prev) => [...prev, botMsg]);
@@ -273,121 +282,151 @@ export default function AIChat() {
   };
 
   const handleChip = (chip: string) => {
-    setInput(chip);
+    send(chip);
   };
 
   // Format message text with markdown-style formatting
   const formatMessage = (text: string) => {
-    return text.split('\n').map((line, i) => {
-      if (line.startsWith('•')) {
-        return <div key={i} className="flex items-start gap-2 mt-1">
-          <span className="text-indigo-500">•</span>
-          <span className="flex-1">{line.substring(1).trim()}</span>
-        </div>;
+    return text.split("\n").map((line, i) => {
+      if (line.startsWith("•")) {
+        return (
+          <div key={i} className="mt-1 flex items-start gap-2">
+            <span className="text-accent">•</span>
+            <span className="flex-1">{line.substring(1).trim()}</span>
+          </div>
+        );
       }
-      if (line.startsWith('**') && line.endsWith('**')) {
-        return <div key={i} className="font-bold mt-2 mb-1 text-indigo-600 dark:text-indigo-400">
-          {line.replace(/\*\*/g, '')}
-        </div>;
+      if (line.startsWith("**") && line.endsWith("**")) {
+        return (
+          <div key={i} className="mb-1 mt-2 font-semibold text-ink">
+            {line.replace(/\*\*/g, "")}
+          </div>
+        );
       }
-      if (line.trim() === '') return <div key={i} className="h-2" />;
-      return <div key={i} className="mb-1">{line}</div>;
+      if (line.trim() === "") return <div key={i} className="h-2" />;
+      return (
+        <div key={i} className="mb-1">
+          {line.replace(/\*\*/g, "")}
+        </div>
+      );
     });
   };
 
   return (
     <>
       {/* Floating Button */}
-      <button
+      <motion.button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-5 py-3 rounded-full shadow-xl flex items-center gap-2 transition-all duration-300 hover:scale-105 z-40 group"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.6, duration: 0.4 }}
+        aria-label={open ? "Close assistant" : "Open assistant"}
+        aria-expanded={open}
+        className="grad-bg fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-white shadow-[0_12px_28px_-10px_var(--grape)] transition-transform hover:-translate-y-0.5 sm:px-5"
       >
-        <MessageCircle size={18} className="group-hover:rotate-12 transition-transform" />
-        <span className="text-sm font-medium">AI Assistant</span>
-      </button>
+        {open ? <X size={18} /> : <MessageCircle size={18} />}
+        <span className="text-sm font-semibold">{open ? "Close" : "Ask about me"}</span>
+      </motion.button>
 
       {/* Chat Window */}
-      {open && (
-        <div className="fixed bottom-20 right-6 w-[450px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden z-50">
-          {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="font-bold text-lg">Habibur's AI Assistant</h2>
-                <p className="text-xs text-indigo-100 mt-0.5">Powered by intelligent responses</p>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.97 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            style={{ transformOrigin: "bottom right" }}
+            className="fixed bottom-20 right-5 z-50 flex w-[420px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-20px_rgb(15_23_42/0.45)]"
+          >
+            {/* Header */}
+            <div className="relative flex items-center justify-between border-b border-line px-5 py-4">
+              <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky via-grape to-coral" />
+              <div className="flex items-center gap-3">
+                <span className="grad-bg grid h-9 w-9 place-items-center rounded-full text-[12px] font-extrabold text-white">
+                  HR
+                </span>
+                <div>
+                  <h2 className="text-[15px] font-bold text-ink">Habibur’s assistant</h2>
+                  <p className="text-xs text-muted">Quick answers about skills, projects and contact</p>
+                </div>
               </div>
-              <button 
-                onClick={() => setOpen(false)} 
-                className="hover:bg-white/20 rounded-full p-1 transition-colors"
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Close assistant"
+                className="grid h-8 w-8 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink"
               >
-                <X size={18} />
+                <X size={17} />
               </button>
             </div>
-          </div>
 
-          {/* Messages */}
-          <div className="h-[400px] overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-gray-950">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] p-3 rounded-2xl text-sm ${
-                    m.role === "user"
-                      ? "bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-br-sm"
-                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-bl-sm shadow-sm"
-                  }`}
+            {/* Messages */}
+            <div ref={scrollRef} className="h-[min(380px,55vh)] space-y-3 overflow-y-auto bg-bg p-4">
+              {messages.map((m, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {m.role === "bot" ? formatMessage(m.text) : m.text}
-                </div>
-              </div>
-            ))}
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-2xl rounded-bl-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                    <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                    <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                      m.role === "user"
+                        ? "grad-bg rounded-br-md text-white"
+                        : "rounded-bl-md border border-line bg-surface text-ink/85"
+                    }`}
+                  >
+                    {m.role === "bot" ? formatMessage(m.text) : m.text}
+                  </div>
+                </motion.div>
+              ))}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="flex gap-1 rounded-2xl rounded-bl-md border border-line bg-surface px-3.5 py-3">
+                    {[0, 150, 300].map((d) => (
+                      <span key={d} className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted" style={{ animationDelay: `${d}ms` }} />
+                    ))}
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Quick Chips */}
-          <div className="px-4 pb-3 flex gap-2 overflow-x-auto bg-gray-50 dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 scrollbar-thin">
-            {suggestions.map((s, i) => (
+            {/* Quick Chips */}
+            <div className="flex gap-2 overflow-x-auto border-t border-line bg-bg px-4 py-2.5">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleChip(s)}
+                  className="whitespace-nowrap rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink/80 transition-colors hover:border-accent hover:text-accent"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className="flex items-center gap-2 border-t border-line p-3">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && send()}
+                placeholder="Ask about skills, projects, experience"
+                aria-label="Your question"
+                className="flex-1 rounded-lg border border-line bg-bg px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-muted/70 focus:border-accent"
+              />
               <button
-                key={i}
-                onClick={() => handleChip(s)}
-                className="text-xs px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full whitespace-nowrap hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all duration-200 hover:scale-105"
+                onClick={() => send()}
+                disabled={!input.trim()}
+                aria-label="Send"
+                className="grad-bg grid h-10 w-10 place-items-center rounded-lg text-white transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {s}
+                <Send size={16} />
               </button>
-            ))}
-          </div>
-
-          {/* Input */}
-          <div className="flex items-center gap-2 p-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && send()}
-              placeholder="Ask about skills, projects, experience..."
-              className="flex-1 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-            />
-            <button
-              onClick={send}
-              disabled={!input.trim()}
-              className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white p-2.5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
-            >
-              <Send size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

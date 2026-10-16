@@ -1,30 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 
 export default function ScrollProgress() {
-  const [scroll, setScroll] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const total =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
-
-      const progress = (window.scrollY / total) * 100;
-      setScroll(progress);
-    };
-
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
 
   return (
-    <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800 z-50">
-      <div
-        className="h-1 bg-gradient-to-r from-indigo-600 to-blue-500"
-        style={{ width: `${scroll}%` }}
-      />
-    </div>
+    <motion.div
+      aria-hidden
+      style={{ scaleX }}
+      className="fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-gradient-to-r from-sky via-grape to-coral"
+    />
   );
 }

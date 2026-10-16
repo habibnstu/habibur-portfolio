@@ -1,92 +1,71 @@
 "use client";
 
-import { Check, Briefcase } from "lucide-react";
+import { motion } from "framer-motion";
+import { BriefcaseBusiness, Check } from "lucide-react";
 import { experience } from "@/data/experience";
+import Section, { Chip, Reveal, toneAt } from "./Section";
+
+const bullets = [
+  "Maintain and enhance features for large-scale POS, HR and e-commerce platforms.",
+  "Develop and maintain ASP.NET Core Web API and MVC applications.",
+  "Build responsive interfaces with React and Next.js.",
+  "Contribute to internal enterprise systems and automation tools.",
+];
+
+const stack = [".NET Core", "C#", "ASP.NET", "Web API", "React", "Next.js", "MVC", "SQL Server"];
 
 export default function Experience() {
-  const exp = experience[0];
-
-  const bullets = [
-    "Maintain and enhance features for large-scale POS system, HR software, and ecommerce platforms.",
-    "Develop and maintain ASP.NET Core Web API and MVC applications.",
-    "Build responsive UI using React and Next.js.",
-    "Contribute to internal enterprise systems and automation tools."
-  ];
-
-  const skills = [
-    ".NET Core",
-    "C#",
-    "ASP.NET",
-    "Web API",
-    "React",
-    "Next.js",
-    "POS Systems",
-    "MVC"
-  ];
-
   return (
-    <section className="max-w-6xl mx-auto  py-5">
-      {/* Heading */}
-      <div className="text-center mb-5">
-        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-          Career
-        </span>
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mt-3">
-          Work Experience
-        </h2>
-        <div className="w-20 h-1 bg-gradient-to-r from-indigo-600 to-blue-500 mx-auto mt-4 rounded-full" />
-      </div>
-
-      {/* Card */}
-      <div className="relative group bg-white dark:bg-gray-900/90 border border-gray-100 dark:border-gray-800 rounded-2xl p-8 shadow-md hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300">
-
-        {/* Icon */}
-        <div className="absolute top-6 right-6 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-500/10">
-          <Briefcase className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-        </div>
-
-        {/* Header */}
-        <div className="pr-20">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {exp.company}
-          </h3>
-
-          <p className="text-indigo-600 dark:text-indigo-400 font-semibold mt-2">
-            {exp.role}
-          </p>
-
-          <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            {exp.duration}
-            {exp.location && ` • ${exp.location}`}
-          </div>
-        </div>
-
-        {/* Bullet Points */}
-        <div className="mt-6 space-y-3">
-          {bullets.map((item, i) => (
-            <div key={i} className="flex gap-3">
-              <div className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center mt-0.5">
-                <Check className="text-indigo-600 dark:text-indigo-400 w-3 h-3" />
+    <Section id="experience" title="Experience" intro="Where I build software today." icon={BriefcaseBusiness} tone="mint">
+      {experience.map((exp) => (
+        <Reveal key={exp.company}>
+          <article
+            style={{ ["--tone" as string]: "var(--mint)" }}
+            className="lift relative overflow-hidden rounded-xl border border-line bg-surface p-6 hover:border-mint/50 sm:p-8"
+          >
+            <span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-mint to-sky" />
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-xl font-bold text-ink">{exp.role}</h3>
+                <p className="mt-1 font-semibold text-mint">
+                  {exp.company}
+                  {exp.location && <span className="font-normal text-muted">, {exp.location}</span>}
+                </p>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                {item}
-              </p>
+              <span className="inline-flex items-center gap-2 rounded-full bg-mint-soft px-3 py-1 text-[13px] font-semibold text-mint">
+                <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-mint" />
+                {exp.duration}
+              </span>
             </div>
-          ))}
-        </div>
 
-        {/* Skills */}
-        <div className="mt-6 flex flex-wrap gap-2 pt-4 border-t border-gray-100 dark:border-gray-800">
-          {skills.map((skill, i) => (
-            <span
-              key={i}
-              className="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 font-medium"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </div>
-    </section>
+            <ul className="mt-6 space-y-3">
+              {bullets.map((b, i) => (
+                <motion.li
+                  key={b}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.1 + i * 0.08 }}
+                  className="flex gap-3 leading-relaxed text-ink/85"
+                >
+                  <span className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-mint-soft text-mint">
+                    <Check size={12} strokeWidth={3} />
+                  </span>
+                  {b}
+                </motion.li>
+              ))}
+            </ul>
+
+            <div className="mt-6 flex flex-wrap gap-2 border-t border-line pt-5">
+              {stack.map((s, i) => (
+                <Chip key={s} tone={toneAt(i)} index={i}>
+                  {s}
+                </Chip>
+              ))}
+            </div>
+          </article>
+        </Reveal>
+      ))}
+    </Section>
   );
 }

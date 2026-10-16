@@ -1,77 +1,45 @@
 "use client";
 
-import {
-  Code2,
-  Database,
-  Globe,
-  Layers,
-} from "lucide-react";
+import { Code2, Database, Layers, Sparkles, Workflow } from "lucide-react";
 import { services } from "@/data/services";
+import Section, { Reveal, tones, type Tone } from "./Section";
 
-const iconMap: any = {
+const iconMap: Record<string, typeof Code2> = {
   code: Code2,
   api: Layers,
   database: Database,
-  mobile: Globe,
+  mobile: Workflow,
 };
 
-const colorMap: any = {
-  blue: "text-blue-600 bg-blue-50 dark:bg-blue-500/10",
-  indigo: "text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10",
-  green: "text-green-600 bg-green-50 dark:bg-green-500/10",
-  purple: "text-purple-600 bg-purple-50 dark:bg-purple-500/10",
-};
+const serviceTones: Tone[] = ["sky", "grape", "sun", "mint"];
 
 export default function Services() {
   return (
-    <section
-      id="services"
-      className="max-w-6xl mx-auto  py-5"
-    >
-      {/* Heading */}
-      <div className="text-center mb-5">
-        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-          What I Offer
-        </span>
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mt-3">
-          My Services
-        </h2>
-        <div className="w-20 h-1 bg-gradient-to-r from-indigo-600 to-blue-500 mx-auto mt-3 rounded-full" />
-        <p className="mt-5 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Comprehensive full-stack development services
-        </p>
-      </div>
-
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {services.map((service) => {
-          const Icon = iconMap[service.icon];
-
+    <Section id="services" title="What I can do for you" intro="Services for businesses and teams." icon={Sparkles} tone="mint">
+      <div className="grid gap-4 sm:grid-cols-2">
+        {services.map((s, i) => {
+          const Icon = iconMap[s.icon] ?? Code2;
+          const t = tones[serviceTones[i % serviceTones.length]];
           return (
-            <div
-              key={service.title}
-              className="group bg-white dark:bg-gray-900/90 border border-gray-100 dark:border-gray-800 rounded-2xl p-8 shadow-md hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300"
-            >
-              {/* Icon */}
-              <div className="mb-6">
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${colorMap[service.color]} transition-all duration-300 group-hover:scale-110`}>
-                  <Icon className="w-7 h-7" />
-                </div>
+            <Reveal key={s.title} delay={i * 0.07}>
+              <div
+                style={{ ["--tone" as string]: t.shadow }}
+                className={`lift group relative h-full overflow-hidden rounded-xl border border-line bg-surface p-6 sm:p-7 ${t.border}`}
+              >
+                <span
+                  aria-hidden
+                  className={`absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-60 transition-transform duration-500 group-hover:scale-150 ${t.soft}`}
+                />
+                <span className={`relative grid h-12 w-12 place-items-center rounded-xl ${t.soft} ${t.text} transition-transform duration-300 group-hover:-rotate-6`}>
+                  <Icon size={22} strokeWidth={1.9} />
+                </span>
+                <h3 className="relative mt-5 text-[17px] font-bold text-ink">{s.title}</h3>
+                <p className="relative mt-2 text-[15px] leading-relaxed text-muted">{s.description}</p>
               </div>
-
-              {/* Title */}
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                {service.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                {service.description}
-              </p>
-            </div>
+            </Reveal>
           );
         })}
       </div>
-    </section>
+    </Section>
   );
 }

@@ -1,79 +1,54 @@
 "use client";
 
-import Image from "next/image";
-import { Star } from "lucide-react";
 import { testimonials } from "@/data/testimonials";
+import { MessageSquareQuote } from "lucide-react";
+import Section, { Reveal, tones, type Tone } from "./Section";
+
+const quoteTones: Tone[] = ["coral", "sky"];
+
+const initials = (name: string) =>
+  name
+    .replace(/^(Md\.|MD\.|Syed)\s+/i, "")
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
 
 export default function Testimonials() {
   return (
-    <section
-      id="testimonials"
-      className="max-w-6xl mx-auto py-5"
-    >
-      {/* Heading */}
-      <div className="text-center mb-5">
-        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-          Testimonials
-        </span>
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mt-3">
-          What People Say
-        </h2>
-        <div className="w-20 h-1 bg-gradient-to-r from-indigo-600 to-blue-500 mx-auto mt-3 rounded-full" />
-        <p className="mt-5 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Kind words from colleagues and clients
-        </p>
-      </div>
-
-      {/* Grid */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {testimonials.map((t, i) => (
-          <div
-            key={i}
-            className="group bg-white dark:bg-gray-900/90 border border-gray-100 dark:border-gray-800 rounded-2xl p-8 shadow-md hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300"
-          >
-            {/* Quote Icon */}
-            <div className="text-6xl text-indigo-200 dark:text-indigo-800/50 font-serif">
-              “
-            </div>
-
-            {/* Text */}
-            <p className="mt-2 text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-              {t.text}
-            </p>
-
-            {/* Rating */}
-            <div className="flex gap-1 mt-6">
-              {[...Array(5)].map((_, idx) => (
-                <Star
-                  key={idx}
-                  className="w-5 h-5 text-yellow-500 fill-yellow-500"
+    <Section id="testimonials" title="Kind words" intro="From mentors and colleagues I’ve worked with." icon={MessageSquareQuote} tone="coral">
+      <div className="grid gap-5 md:grid-cols-2">
+        {testimonials.map((t, i) => {
+          const tone = tones[quoteTones[i % quoteTones.length]];
+          return (
+          <Reveal key={t.name} delay={i * 0.08}>
+            <figure
+              style={{ ["--tone" as string]: tone.shadow }}
+              className={`lift relative flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface p-6 sm:p-7 ${tone.border}`}
+            >
+              <span aria-hidden className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${tone.bar}`} />
+              <svg width="28" height="22" viewBox="0 0 28 22" className={tone.text} aria-hidden>
+                <path
+                  fill="currentColor"
+                  d="M0 22V13.2C0 5.9 4.1 1.5 11 0l1.3 3.2C8.4 4.6 6.6 7 6.4 10.4H12V22H0Zm16 0V13.2C16 5.9 20.1 1.5 27 0l1 3.2c-3.9 1.4-5.7 3.8-5.9 7.2H28V22H16Z"
                 />
-              ))}
-            </div>
-
-            {/* Profile */}
-            <div className="flex items-center gap-4 mt-8 pt-4 border-t border-gray-100 dark:border-gray-800">
-              <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-indigo-500/20">
-                <Image
-                  src={t.image}
-                  alt={t.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-
-              <div>
-                <h4 className="font-bold text-gray-900 dark:text-white text-lg">
-                  {t.name}
-                </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {t.role}
-                </p>
-              </div>
-            </div>
-          </div>
-        ))}
+              </svg>
+              <blockquote className="mt-4 flex-1 text-[16.5px] leading-[1.7] text-ink/90">{t.text}</blockquote>
+              <figcaption className="mt-6 flex items-center gap-3.5 border-t border-line pt-5">
+                <span className={`grid h-11 w-11 flex-none place-items-center rounded-full text-sm font-bold ${tone.soft} ${tone.text}`}>
+                  {initials(t.name)}
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-semibold text-ink">{t.name}</span>
+                  <span className="block text-[13px] leading-snug text-muted">{t.role}</span>
+                </span>
+              </figcaption>
+            </figure>
+          </Reveal>
+          );
+        })}
       </div>
-    </section>
+    </Section>
   );
 }

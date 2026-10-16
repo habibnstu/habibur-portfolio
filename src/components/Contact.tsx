@@ -2,196 +2,184 @@
 
 import { useState } from "react";
 import emailjs from "@emailjs/browser";
+import { AnimatePresence, motion } from "framer-motion";
+import { CheckCircle2, Loader2, Mail, MapPin, MessageCircleHeart, Phone, Send } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  User,
-  MessageSquare,
-  Send,
-} from "lucide-react";
+import { profile } from "@/data/profile";
+import Section, { Reveal, tones, type Tone } from "./Section";
+
+// Replace these with your EmailJS keys (or move them to .env.local as NEXT_PUBLIC_*)
+const EMAILJS_SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "YOUR_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "YOUR_TEMPLATE_ID";
+const EMAILJS_PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY ?? "YOUR_PUBLIC_KEY";
+
+type Status = "idle" | "sending" | "sent" | "error";
+
+const empty = { name: "", email: "", phone: "", message: "" };
+
+const inputClass =
+  "mt-2 w-full rounded-lg border border-line bg-bg px-4 py-3 text-[15px] text-ink placeholder:text-muted/70 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20";
 
 export default function Contact() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
+  const [form, setForm] = useState(empty);
+  const [status, setStatus] = useState<Status>("idle");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (status === "error" || status === "sent") setStatus("idle");
   };
 
-  const sendEmail = (e: React.FormEvent) => {
+  const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    emailjs
-      .send(
-        "YOUR_SERVICE_ID",
-        "YOUR_TEMPLATE_ID",
-        {
-          from_name: form.name,
-          from_email: form.email,
-          phone: form.phone,
-          message: form.message,
-        },
-        "YOUR_PUBLIC_KEY"
-      )
-      .then(() => {
-        alert("Message sent successfully!");
-        setForm({ name: "", email: "", phone: "", message: "" });
-      });
+    setStatus("sending");
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        { from_name: form.name, from_email: form.email, phone: form.phone, message: form.message },
+        EMAILJS_PUBLIC_KEY
+      );
+      setStatus("sent");
+      setForm(empty);
+    } catch {
+      setStatus("error");
+    }
   };
+
+  const contactItems = [
+    { icon: Mail, label: "Email", value: profile.email, href: `mailto:${profile.email}`, tone: "sky" as Tone },
+    { icon: Phone, label: "WhatsApp", value: profile.phone, href: `https://wa.me/${profile.whatsapp}`, tone: "mint" as Tone },
+    { icon: MapPin, label: "Location", value: profile.location, tone: "coral" as Tone },
+  ];
 
   return (
-    <section id="contact" className="max-w-6xl mx-auto px-6 py-5">
-      {/* Heading */}
-      <div className="text-center mb-5">
-        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-          Connect
-        </span>
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mt-3">
-          Get In Touch
-        </h2>
-        <div className="w-20 h-1 bg-gradient-to-r from-indigo-600 to-blue-500 mx-auto mt-3 rounded-full" />
-        <p className="mt-5 text-gray-600 dark:text-gray-400">
-          Let's connect and discuss your project
-        </p>
-      </div>
+    <Section id="contact" title="Get in touch" intro="Send a message and I’ll get back to you, usually within 24 hours." icon={MessageCircleHeart} tone="sky">
+      <div className="grid gap-8 xl:grid-cols-[0.8fr_1.2fr]">
+        <Reveal>
+          <ul className="space-y-6">
+            {contactItems.map(({ icon: Icon, label, value, href, tone }) => (
+              <li key={label} className="group flex gap-4">
+                <span className={`grid h-11 w-11 flex-none place-items-center rounded-xl transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110 ${tones[tone].soft} ${tones[tone].text}`}>
+                  <Icon size={18} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[13px] text-muted">{label}</span>
+                  {href ? (
+                    <a
+                      href={href}
+                      target={href.startsWith("http") ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      className="block break-words font-semibold text-ink transition-colors hover:text-accent"
+                    >
+                      {value}
+                    </a>
+                  ) : (
+                    <span className="block font-semibold text-ink">{value}</span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
 
-      <div className="grid md:grid-cols-2 gap-10">
-        {/* LEFT SIDE - CONTACT INFO */}
-        <div className="space-y-5">
-
-          {/* Email */}
-          <div className="flex items-center gap-5 p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-md hover:shadow-lg transition-all duration-300">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
-              <Mail className="text-indigo-600 dark:text-indigo-400 w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Email</p>
-              <p className="font-semibold text-gray-800 dark:text-white">mdhabibnstu@gmail.com</p>
-            </div>
-          </div>
-
-          {/* Phone */}
-          <div className="flex items-center gap-5 p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-md hover:shadow-lg transition-all duration-300">
-            <div className="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-500/10 flex items-center justify-center">
-              <Phone className="text-green-600 dark:text-green-400 w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">WhatsApp</p>
-              <p className="font-semibold text-gray-800 dark:text-white">+88 01768238762</p>
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="flex items-center gap-5 p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-md hover:shadow-lg transition-all duration-300">
-            <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center">
-              <MapPin className="text-purple-600 dark:text-purple-400 w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Location</p>
-              <p className="font-semibold text-gray-800 dark:text-white">Mirpur-1, Dhaka, Bangladesh</p>
-            </div>
-          </div>
-
-          {/* Social */}
-          <div className="flex gap-3 pt-4">
+          <div className="mt-8 flex gap-3">
             <a
-              href="https://github.com"
-              className="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300"
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-line text-ink transition-all hover:-translate-y-0.5 hover:border-grape hover:bg-grape-soft hover:text-grape"
             >
-              <FaGithub className="text-gray-700 dark:text-gray-300 w-5 h-5" />
+              <FaGithub size={18} />
             </a>
-
             <a
-              href="https://linkedin.com"
-              className="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300"
+              href={profile.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-line text-ink transition-all hover:-translate-y-0.5 hover:border-sky hover:bg-sky-soft hover:text-sky"
             >
-              <FaLinkedin className="text-blue-600 w-5 h-5" />
+              <FaLinkedin size={18} />
             </a>
           </div>
-        </div>
+        </Reveal>
 
-        {/* RIGHT SIDE - FORM */}
-        <form
-          onSubmit={sendEmail}
-          className="bg-white dark:bg-gray-900/90 border border-gray-100 dark:border-gray-800 rounded-2xl p-8 shadow-md space-y-5"
-        >
-          {/* Name */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
-            <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-xl px-4 mt-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
-              <User className="text-gray-400 w-4 h-4" />
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                className="w-full p-3 outline-none bg-transparent text-gray-900 dark:text-white"
-                placeholder="John Doe"
-              />
+        <Reveal delay={0.1}>
+          <form onSubmit={sendEmail} className="relative overflow-hidden rounded-xl border border-line bg-surface p-6 sm:p-8">
+            <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky via-grape to-coral" />
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="block text-sm font-medium text-ink">
+                Full name
+                <input name="name" required value={form.name} onChange={handleChange} className={inputClass} placeholder="Your name" autoComplete="name" />
+              </label>
+              <label className="block text-sm font-medium text-ink">
+                Email address
+                <input name="email" type="email" required value={form.email} onChange={handleChange} className={inputClass} placeholder="you@company.com" autoComplete="email" />
+              </label>
             </div>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</label>
-            <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-xl px-4 mt-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
-              <Mail className="text-gray-400 w-4 h-4" />
-              <input
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full p-3 outline-none bg-transparent text-gray-900 dark:text-white"
-                placeholder="john@example.com"
-              />
-            </div>
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
-            <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-xl px-4 mt-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
-              <Phone className="text-gray-400 w-4 h-4" />
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                className="w-full p-3 outline-none bg-transparent text-gray-900 dark:text-white"
-                placeholder="+8801XXXXXXXXX"
-              />
-            </div>
-          </div>
-
-          {/* Message */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
-            <div className="flex items-start border border-gray-200 dark:border-gray-700 rounded-xl px-4 mt-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
-              <MessageSquare className="text-gray-400 w-4 h-4 mt-3" />
+            <label className="mt-5 block text-sm font-medium text-ink">
+              Phone number <span className="font-normal text-muted">(optional)</span>
+              <input name="phone" type="tel" value={form.phone} onChange={handleChange} className={inputClass} placeholder="+8801XXXXXXXXX" autoComplete="tel" />
+            </label>
+            <label className="mt-5 block text-sm font-medium text-ink">
+              Message
               <textarea
                 name="message"
+                required
+                rows={5}
                 value={form.message}
                 onChange={handleChange}
-                className="w-full p-3 outline-none bg-transparent text-gray-900 dark:text-white h-32 resize-none"
-                placeholder="Tell me about your project..."
+                className={`${inputClass} resize-none`}
+                placeholder="Tell me about your project, timeline and budget"
               />
-            </div>
-          </div>
+            </label>
 
-          {/* Button */}
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white py-3.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-          >
-            Send Message <Send size={16} />
-          </button>
-        </form>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <button
+                type="submit"
+                disabled={status === "sending"}
+                className="grad-bg inline-flex items-center gap-2 rounded-lg px-6 py-3 text-[15px] font-semibold text-white shadow-[0_10px_24px_-10px_var(--accent)] transition-transform hover:-translate-y-0.5 disabled:opacity-60"
+              >
+                {status === "sending" ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Sending
+                  </>
+                ) : (
+                  <>
+                    <Send size={16} /> Send message
+                  </>
+                )}
+              </button>
+
+              <AnimatePresence mode="wait">
+                {status === "sent" && (
+                  <motion.p
+                    key="sent"
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-[#22a06b]"
+                    role="status"
+                  >
+                    <CheckCircle2 size={16} /> Message sent. I’ll reply soon.
+                  </motion.p>
+                )}
+                {status === "error" && (
+                  <motion.p
+                    key="error"
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-sm font-medium text-coral"
+                    role="alert"
+                  >
+                    Message not sent. Please email {profile.email} directly.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          </form>
+        </Reveal>
       </div>
-    </section>
+    </Section>
   );
 }
